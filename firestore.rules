@@ -1,0 +1,121 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default Deny All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'varmaisking460@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Connectivity test collection
+    match /test/{testId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Admins registry collection
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Shipping Addresses
+    match /addresses/{addressId} {
+      allow get: if isSignedIn() && (resource.data.user_id == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.user_id == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.user_id == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.user_id == request.auth.uid || isAdmin());
+    }
+
+    // Categories
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin() || !isSignedIn(); // Allow initial seeding if uninitialized
+    }
+
+    // Products
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin() || !isSignedIn(); // Allow initial seeding if uninitialized
+    }
+
+    // Banners
+    match /banners/{bannerId} {
+      allow read: if true;
+      allow write: if isAdmin() || !isSignedIn(); // Allow initial seeding
+    }
+
+    // Coupons
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Orders
+    match /orders/{orderId} {
+      allow get: if isSignedIn() && (resource.data.user_id == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.user_id == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.user_id == request.auth.uid;
+      allow update: if isSignedIn() && (resource.data.user_id == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // Subscriptions
+    match /subscriptions/{subscriptionId} {
+      allow get: if isSignedIn() && (resource.data.user_id == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.user_id == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.user_id == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.user_id == request.auth.uid || isAdmin());
+    }
+
+    // Support Tickets
+    match /support_tickets/{ticketId} {
+      allow get: if isSignedIn() && (resource.data.user_id == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.user_id == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.user_id == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Reward Rules & Ledgers
+    match /reward_rules/{ruleId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /reward_transactions/{transactionId} {
+      allow read: if isSignedIn() && (resource.data.user_id == request.auth.uid || isAdmin());
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,221 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Customer and admin profile in the application",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "mobile": { "type": "string", "maxLength": 20 },
+        "email": { "type": "string", "maxLength": 100 },
+        "profile_image": { "type": "string", "maxLength": 500 },
+        "referral_code": { "type": "string", "maxLength": 20 },
+        "referred_by": { "type": "string", "maxLength": 50 },
+        "role": { "type": "string", "enum": ["CUSTOMER", "ADMIN", "SUPER_ADMIN", "ORDER_MANAGER"] },
+        "status": { "type": "string", "enum": ["ACTIVE", "INACTIVE", "BLOCKED"] },
+        "loyalty_points": { "type": "number" },
+        "created_at": { "type": "string" },
+        "updated_at": { "type": "string" }
+      },
+      "required": ["id", "name", "email", "status"]
+    },
+    "Address": {
+      "title": "Address",
+      "description": "Saved shipping address for customer orders",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "user_id": { "type": "string" },
+        "address_type": { "type": "string", "enum": ["Home", "Work", "Other"] },
+        "name": { "type": "string", "maxLength": 100 },
+        "mobile": { "type": "string", "maxLength": 20 },
+        "door_no": { "type": "string", "maxLength": 50 },
+        "street": { "type": "string", "maxLength": 200 },
+        "locality": { "type": "string", "maxLength": 200 },
+        "landmark": { "type": "string", "maxLength": 200 },
+        "city": { "type": "string", "maxLength": 100 },
+        "state": { "type": "string", "maxLength": 100 },
+        "pincode": { "type": "string", "maxLength": 10 },
+        "delivery_instructions": { "type": "string", "maxLength": 300 },
+        "is_default": { "type": "boolean" },
+        "created_at": { "type": "string" }
+      },
+      "required": ["id", "user_id", "name", "mobile", "door_no", "street", "city", "state", "pincode"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Product category taxonomy",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "name_telugu": { "type": "string", "maxLength": 100 },
+        "slug": { "type": "string", "maxLength": 100 },
+        "image": { "type": "string", "maxLength": 500 },
+        "sort_order": { "type": "number" },
+        "status": { "type": "string", "enum": ["ACTIVE", "INACTIVE"] }
+      },
+      "required": ["id", "name", "slug", "status"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Cold pressed oil or agro food product",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "category_id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 150 },
+        "name_telugu": { "type": "string", "maxLength": 150 },
+        "slug": { "type": "string", "maxLength": 150 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "highlights": { "type": "string", "maxLength": 500 },
+        "ingredients": { "type": "string", "maxLength": 500 },
+        "storage_information": { "type": "string", "maxLength": 500 },
+        "delivery_information": { "type": "string", "maxLength": 500 },
+        "main_image": { "type": "string", "maxLength": 500 },
+        "status": { "type": "string", "enum": ["ACTIVE", "INACTIVE", "OUT_OF_STOCK"] },
+        "featured": { "type": "boolean" },
+        "rating": { "type": "number" },
+        "reviews_count": { "type": "number" }
+      },
+      "required": ["id", "category_id", "name", "slug", "status"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer purchase transaction and shipment",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "order_number": { "type": "string", "maxLength": 50 },
+        "user_id": { "type": "string" },
+        "subtotal": { "type": "number" },
+        "discount": { "type": "number" },
+        "delivery_charge": { "type": "number" },
+        "reward_discount": { "type": "number" },
+        "coupon_discount": { "type": "number" },
+        "coupon_code": { "type": "string", "maxLength": 50 },
+        "total_amount": { "type": "number" },
+        "payment_status": { "type": "string", "enum": ["PENDING", "PAID", "FAILED", "REFUNDED"] },
+        "order_status": { "type": "string", "enum": ["PLACED", "CONFIRMED", "PROCESSING", "PACKED", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED", "RETURNED", "REFUNDED"] },
+        "payment_method": { "type": "string", "enum": ["UPI", "CARD", "NETBANKING", "COD"] },
+        "address_id": { "type": "string" },
+        "expected_delivery_date": { "type": "string" },
+        "created_at": { "type": "string" },
+        "updated_at": { "type": "string" }
+      },
+      "required": ["id", "order_number", "user_id", "total_amount", "payment_status", "order_status", "payment_method"]
+    },
+    "Subscription": {
+      "title": "Subscription",
+      "description": "Monthly Family Essentials recurring kit delivery",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "user_id": { "type": "string" },
+        "plan_id": { "type": "string" },
+        "plan_name": { "type": "string", "maxLength": 100 },
+        "status": { "type": "string", "enum": ["ACTIVE", "PAUSED", "CANCELLED"] },
+        "delivery_date": { "type": "string" },
+        "next_delivery_date": { "type": "string" },
+        "next_billing_date": { "type": "string" },
+        "auto_renew": { "type": "boolean" },
+        "payment_method": { "type": "string" },
+        "total_amount": { "type": "number" },
+        "created_at": { "type": "string" },
+        "updated_at": { "type": "string" }
+      },
+      "required": ["id", "user_id", "plan_id", "status", "total_amount"]
+    },
+    "Coupon": {
+      "title": "Coupon",
+      "description": "Discount voucher code",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string", "maxLength": 30 },
+        "discount_type": { "type": "string", "enum": ["PERCENTAGE", "FIXED"] },
+        "discount_value": { "type": "number" },
+        "minimum_order": { "type": "number" },
+        "maximum_discount": { "type": "number" },
+        "start_date": { "type": "string" },
+        "end_date": { "type": "string" },
+        "usage_limit": { "type": "number" },
+        "per_user_limit": { "type": "number" },
+        "status": { "type": "string", "enum": ["ACTIVE", "INACTIVE"] }
+      },
+      "required": ["id", "code", "discount_type", "discount_value", "status"]
+    },
+    "SupportTicket": {
+      "title": "SupportTicket",
+      "description": "Customer inquiry and grievance ticket",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "user_id": { "type": "string" },
+        "order_id": { "type": "string" },
+        "category": { "type": "string", "maxLength": 50 },
+        "subject": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "status": { "type": "string", "enum": ["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"] },
+        "assigned_to": { "type": "string" },
+        "created_at": { "type": "string" },
+        "updated_at": { "type": "string" }
+      },
+      "required": ["id", "user_id", "category", "subject", "description", "status"]
+    },
+    "Banner": {
+      "title": "Banner",
+      "description": "Home promotional banner carousel slide",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string", "maxLength": 100 },
+        "subtitle": { "type": "string", "maxLength": 200 },
+        "image": { "type": "string", "maxLength": 500 },
+        "action_url": { "type": "string", "maxLength": 200 },
+        "active": { "type": "boolean" },
+        "sort_order": { "type": "number" }
+      },
+      "required": ["id", "title", "image", "active"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile with role, contact info and loyalty points"
+    },
+    "/addresses/{addressId}": {
+      "schema": "Address",
+      "description": "Shipping addresses linked to user accounts"
+    },
+    "/categories/{categoryId}": {
+      "schema": "Category",
+      "description": "Product categories in the catalogue"
+    },
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Cold pressed oils and agro food items"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Customer orders with items, pricing, delivery and status"
+    },
+    "/subscriptions/{subscriptionId}": {
+      "schema": "Subscription",
+      "description": "Customer monthly family essential subscriptions"
+    },
+    "/coupons/{couponId}": {
+      "schema": "Coupon",
+      "description": "Promotional coupons and discounts"
+    },
+    "/support_tickets/{ticketId}": {
+      "schema": "SupportTicket",
+      "description": "Customer support requests and resolutions"
+    },
+    "/banners/{bannerId}": {
+      "schema": "Banner",
+      "description": "Promotional banners displayed on the home screen"
+    }
+  }
+}
