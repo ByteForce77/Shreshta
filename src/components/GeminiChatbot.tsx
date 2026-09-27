@@ -120,6 +120,43 @@ export const GeminiChatbot: React.FC = () => {
       });
 
       if (!res.ok) {
+        if (res.status === 404) {
+          // Static environment fallback (e.g. GitHub Pages static deployment)
+          let fallbackText = "Polumati's Shreshta™ Cold Pressed Oils are traditionally extracted on Vaagai wood chekku below 35°C without chemicals or high-friction heat. Our flagship products include Wood-Pressed Groundnut Oil, Bellam Sesame Oil, Extra Virgin Coconut Oil, and the 10+ KG Navaratnalu family kit.\n\nTo enable dynamic multi-turn Gemini 3.5 & Google Maps AI responses, run the application with the full-stack backend (`npm start`).";
+          let fallbackPlaces = [
+            {
+              title: "Polumati's Shreshta Agro Store - Bhimavaram",
+              uri: "https://maps.google.com/?q=Bhimavaram+Andhra+Pradesh+Organic+Store",
+            },
+            {
+              title: "Rythu Bazar Organic Agro Hub - West Godavari",
+              uri: "https://maps.google.com/?q=Rythu+Bazar+West+Godavari",
+            },
+          ];
+
+          if (/sesame|til|nuvvulu/i.test(promptToSend)) {
+            fallbackText = "🌿 **Shreshta Wood-Pressed Sesame Oil (బెల్లం నువ్వుల నూనె)**:\n- Cold-pressed using premium native sesame seeds and pure organic palm jaggery (bellam).\n- Rich in Sesamol, Sesamolin, and Calcium.\n- Revered in Ayurveda for balancing Vata dosha, promoting joint mobility, and enhancing traditional Andhra podis and pickles.";
+          } else if (/groundnut|peanut|verusenaga/i.test(promptToSend)) {
+            fallbackText = "🥜 **Shreshta Traditional Groundnut Oil (వేరుశెనగ నూనె)**:\n- Extracted at slow RPM below 35°C on Vaagai wooden pestles.\n- High smoke point, perfect for daily Indian curries, tadka, and shallow/deep frying.\n- Zero hexane, non-degummed, and naturally settled in sunlight.";
+          } else if (/navaratnalu|grain|pulse|kit/i.test(promptToSend)) {
+            fallbackText = "🌾 **Navaratnalu 9 Sacred Grains Monthly Kit**:\n1. Toor Dal (కందులు) - 2 KG\n2. Moong Dal (పెసలు) - 1 KG\n3. Black Urad Dal (మినుములు) - 2 KG\n4. Desi Chana (శనగలు) - 1 KG\n5. White Sesame (నువ్వులు) - 500 G\n6. Bansi Whole Wheat (గోధుమలు) - 2 KG\n7. Hand-Pounded Brown Rice (వరి) - 2 KG\n8. Horsegram (ఉలువలు) - 500 G\n9. Cowpeas (బొబ్బర్లు) - 500 G\n\nCurated to supply clean heirloom nutrition for a 4-person family for 30 days.";
+          } else if (/store|shop|mill|location|bhimavaram|hyderabad/i.test(promptToSend)) {
+            fallbackText = "📍 **Store & Mill Locations**:\n- **Main Agro Mill**: Opp. Rythu Bazar, Temple Road, Bhimavaram, West Godavari, AP - 534201.\n- **Direct Delivery**: Farm direct dispatches to Hyderabad, Vijayawada, Visakhapatnam, and across South India in 24-48 hours.";
+          }
+
+          const botMsg: ChatMessage = {
+            id: `bot-${Date.now()}`,
+            role: 'assistant',
+            text: fallbackText,
+            mapPlaces: fallbackPlaces,
+            modelUsed: 'gemini-3.5-flash (offline fallback)',
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          };
+          setMessages((prev) => [...prev, botMsg]);
+          setLoading(false);
+          return;
+        }
+
         const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.error || `HTTP error ${res.status}`);
       }
